@@ -1,0 +1,24 @@
+{
+  "name": "rapid-door-2-door",
+  "version": "0.0.1",
+  "description": "A Node.js web-app for rapid door-to-door sales",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node main.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Pretzeled/RapidDoor2Door.git"
+  },
+  "author": "Ezra Kahn",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Pretzeled/RapidDoor2Door/issues"
+  },
+  "homepage": "https://github.com/Pretzeled/RapidDoor2Door#readme",
+  "dependencies": {
+    "dotenv": "^17.2.1",
+    "express": "^5.1.0"
+  }
+}
