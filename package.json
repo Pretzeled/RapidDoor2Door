@@ -2,10 +2,10 @@
   "name": "rapid-door-2-door",
   "version": "0.0.1",
   "description": "A Node.js web-app for rapid door-to-door sales",
-  "main": "main.js",
+  "main": "src/main.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node main.js"
+    "start": "node src/main.js"
   },
   "repository": {
     "type": "git",
