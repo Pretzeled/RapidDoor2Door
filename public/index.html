@@ -13,10 +13,24 @@
         script.defer = true;
         document.head.appendChild(script);
     </script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        #map {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+        }
+    </style>
 </head>
 <body>
-    <h1>Rapid Door 2 Door V0.0.1</h1>
-    <div id="map" style="height: 400px; width: 100%;"></div>
+    <div id="map"></div>
     <script>
         function initMap() {
             const center = { lat: 37.7749, lng: -122.4194 }; // Example: San Francisco
