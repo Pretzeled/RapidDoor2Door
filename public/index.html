@@ -1,11 +1,34 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+<head> 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rapid Door 2 Door</title>
+    <script>
+        const apiKey = window.GOOGLE_MAPS_API_KEY; // or get it from somewhere
+        console.log(`Google Maps API Key: ${apiKey}`);
+        const script = document.createElement('script');
+        script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&callback=initMap`;
+        script.async = true;
+        script.defer = true;
+        document.head.appendChild(script);
+    </script>
 </head>
 <body>
     <h1>Rapid Door 2 Door V0.0.1</h1>
+    <div id="map" style="height: 400px; width: 100%;"></div>
+    <script>
+        function initMap() {
+            const center = { lat: 37.7749, lng: -122.4194 }; // Example: San Francisco
+            const map = new google.maps.Map(document.getElementById("map"), {
+                zoom: 12,
+                center: center,
+            });
+            new google.maps.Marker({
+                position: center,
+                map: map,
+            });
+        }
+    </script>
 </body>
 </html>
