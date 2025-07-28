@@ -4,34 +4,35 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rapid Door 2 Door</title>
-    <script>
-        const apiKey = window.GOOGLE_MAPS_API_KEY; // or get it from somewhere
-        console.log(`Google Maps API Key: ${apiKey}`);
-        const script = document.createElement('script');
-        script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&callback=initMap`;
-        script.async = true;
-        script.defer = true;
-        document.head.appendChild(script);
-    </script>
     <style>
         body {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
             background-color: #f4f4f4;
+            box-sizing: border-box;
         }
         #map {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
-            height: 100vh;
+            height: calc(var(--vh, 1vh) * 100);
         }
     </style>
 </head>
 <body>
     <div id="map"></div>
     <script>
+        // Fix 100vh issue on ios browsers
+        function setMapHeight() {
+            document.documentElement.style.setProperty('--vh', `${window.innerHeight * 0.01}px`);
+        }
+        
+        window.addEventListener('resize', setMapHeight);
+        window.addEventListener('orientationchange', setMapHeight);
+        setMapHeight();
+
         function initMap() {
             const center = { lat: 37.7749, lng: -122.4194 }; // Example: San Francisco
             const map = new google.maps.Map(document.getElementById("map"), {
@@ -43,6 +44,15 @@
                 map: map,
             });
         }
+
+        // Load Google Maps script
+        const apiKey = window.GOOGLE_MAPS_API_KEY; // Google Maps API Key injected from server-side
+        console.log(`Google Maps API Key: ${apiKey}`);
+        const script = document.createElement('script');
+        script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&callback=initMap`;
+        script.async = true;
+        script.defer = true;
+        document.head.appendChild(script);
     </script>
 </body>
 </html>
