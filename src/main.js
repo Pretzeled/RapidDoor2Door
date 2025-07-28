@@ -26,6 +26,25 @@ app.get('/', (req, res) => {
     });
 });
 
+function respond404(req, res) {
+    res.status(404).send('File not found');
+}
+
+app.get(/.*/, (req, res) => {
+    const filePath = path.join(publicFolder, req.path);
+    if (!filePath.startsWith(publicFolder)) { // Hopefully mitigate directory traversal attacks
+        respond404(req, res);
+        return;
+    }
+    fs.readFile(filePath, (err, data) => {
+        if (err) {
+            respond404(req, res);
+            return;
+        }
+        res.send(data);
+    });
+});
+
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
 });
