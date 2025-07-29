@@ -15,23 +15,25 @@ const publicFolder = path.isAbsolute(process.env.PUBLIC_FOLDER)
 
 console.log(`Using public folder: ${publicFolder}`);
 
-app.get('/', (req, res) => {
-    fs.readFile(path.join(publicFolder, 'index.html'), (err, data) => {
-        if (err) {
-            res.status(500).send('Error reading file');
-            return;
-        }
-        const htmlContent = `<script>window.GOOGLE_MAPS_API_KEY = "${GOOGLE_MAPS_API_KEY}";</script>` + data.toString(); // Inject API key
-        res.send(htmlContent);
-    });
-});
-
 function respond404(req, res) {
     res.status(404).send('File not found');
 }
 
 app.get(/.*/, (req, res) => {
-    const filePath = path.join(publicFolder, req.path);
+    let authenticated = true; // Placeholder for authentication logic
+
+    let requestedPath = req.path;
+    if (requestedPath == '/') {
+        requestedPath = '/index.html'; // Default to index.html
+    }
+
+    // -----  DO NOT EDIT FILE PATH AFTER AUTHENTICATION CHECK -----
+    if (!authenticated) {
+        requestedPath = '/login.html'; // Serve login if not authenticated
+    }
+    const filePath = path.join(publicFolder, requestedPath);
+    // -----  DO NOT EDIT FILE PATH AFTER AUTHENTICATION CHECK -----
+    
     if (!filePath.startsWith(publicFolder)) { // Hopefully mitigate directory traversal attacks
         respond404(req, res);
         return;
@@ -41,7 +43,13 @@ app.get(/.*/, (req, res) => {
             respond404(req, res);
             return;
         }
-        res.send(data);
+
+        let responseText = data.toString();
+        if (authenticated && filePath.endsWith('.html')) { // Inject API key on authenticated HTML pages
+            responseText = `<script>window.GOOGLE_MAPS_API_KEY = "${GOOGLE_MAPS_API_KEY}";</script>` + responseText; 
+        }
+
+        res.send(responseText);
     });
 });
 
