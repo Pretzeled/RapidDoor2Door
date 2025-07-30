@@ -77,7 +77,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const email = encodeURIComponent(formData.get('email'));
             const a2 = encodeURIComponent(formData.get('carMakeAndModel'));
             const a3 = encodeURIComponent(formData.get('address'));
-            const a6 = encodeURIComponent(formData.get('notes'));
+            const a6 = encodeURIComponent('Booked by ezra - ' + formData.get('notes'));
 
 
             const phoneNumberText = formData.get('phoneNumber');
