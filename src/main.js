@@ -1,3 +1,12 @@
+/*
+RapidDoor2Door - A simple web application for managing door-to-door visits.
+Copyright (C) 2025 Ezra Kahn
+
+REQUIRE SECURE COOKIES BEFORE DEPLOYING TO PRODUCTION
+
+*/
+
+
 const express = require('express');
 const fs = require('fs');
 const dotenv = require('dotenv')
@@ -5,11 +14,31 @@ const path = require('path');
 const multer = require('multer');
 const upload = multer();
 const cookieParser = require('cookie-parser');
+const bcrypt = require('bcrypt');
 
 const Database = require('better-sqlite3');
-const { randomBytes } = require('crypto');
+const { randomBytes, createHash } = require('crypto');
+const { create } = require('domain');
 const db = new Database('clients.db');
 db.prepare('CREATE TABLE IF NOT EXISTS clients (placeId TEXT PRIMARY KEY, response TEXT, fname TEXT, lname TEXT, email TEXT, phone TEXT, carMakeAndModel TEXT, notes TEXT, address TEXT, lat REAL, lng REAL)').run();
+db.prepare('CREATE TABLE IF NOT EXISTS admins (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT UNIQUE, password TEXT, level INTEGER, homesVisited INTEGER, sessionKey TEXT)').run();
+const ADMIN_LEVEL_OWNER = 1;
+const ADMIN_LEVEL_STANDARD = 2;
+
+async function createOwner() {
+    const prompt = require('prompt-sync')();
+    const username = prompt('Enter a username for the owner: ');
+    const password = prompt.hide('Enter a password for the owner: ');
+
+    const passwordHash = await bcrypt.hash(password, 12); // Store this in DB
+
+    db.prepare('INSERT INTO admins (username, password, level) VALUES (?, ?, ?)')
+    .run(username, passwordHash, ADMIN_LEVEL_OWNER);
+}
+
+if (!db.prepare('SELECT * FROM admins WHERE level = ?').get(ADMIN_LEVEL_OWNER)) {
+    createOwner();
+}
 
 dotenv.config({ path: 'config/config.cfg' });
 dotenv.config({ path: 'config/keys.cfg' });
@@ -29,9 +58,21 @@ function respond404(req, res) {
     res.status(404).send('File not found');
 }
 
+function getUser(req) {
+    if (!req.cookies || !req.cookies.k) {
+        return {authenticationLevel: 0}; // Not authenticated
+    }
+    const authKey = req.cookies.k;
+    const admin = db.prepare('SELECT * FROM admins WHERE sessionKey = ?').get(authKey);
+    if (admin) {
+        return {authenticationLevel: admin.level, username: admin.username, homesVisited: admin.homesVisited}; // Return the admin level
+    }
+    return {authenticationLevel: 0}; // Not authenticated
+}
+
 app.post('/api/save', upload.none(), (req, res) => {
-    let authenticated = req.cookies && req.cookies.authkey === authKey; // MAKE SECURE LATER
-    if (!authenticated) {
+    const user = getUser(req);
+    if (user.authenticationLevel <= 0) {
         console.log('Unauthorized save request');
         res.status(401).send('Unauthorized');
         return;
@@ -43,47 +84,50 @@ app.post('/api/save', upload.none(), (req, res) => {
     res.sendStatus(200);
 });
 
-let authKey = null;
-authKey = randomBytes(64).toString('hex'); // Generate a random auth key
-app.post('/auth', upload.none(), (req, res) => {
+app.post('/auth', upload.none(), async (req, res) => {
     let username = req.body.username;
 	let password = req.body.password;
     console.log(`Authentication attempt for user: ${username}`);
-    console.log(`Password: ${password}`);
-    
-    // Placeholder for authentication logic
-    if (username === 'admin' && password === process.env.ADMIN_PASSWORD) {
-        console.log('Authentication successful');
-        authKey = randomBytes(64).toString('hex');
-        res.cookie('authkey', authKey); // Set a cookie for auth key
-        res.redirect('/'); // Redirect to home page after successful authentication
-    } else {
-       res.send('Incorrect Username and/or Password!');
-       res.status(401);
+
+    const admin = db.prepare('SELECT * FROM admins WHERE username = ?').get(username);
+
+    if (!admin) {
+        console.log('Authentication failed: User not found');
+        res.status(401).send('Incorrect Username and/or Password!');
+        return;
     }
-    res.end();
+    if (!bcrypt.compareSync(password, admin.password)) {
+        console.log('Authentication failed: Incorrect password');
+        res.status(401).send('Incorrect Username and/or Password!');
+        return;
+    }
+    
+    console.log('Authentication successful for user:', username);
+
+    const authKey = randomBytes(32).toString('hex');
+    db.prepare('UPDATE admins SET sessionKey = ? WHERE username = ?').run(authKey, username);
+
+    res.cookie('k', authKey); // Set a cookie for auth key
+    res.redirect('/'); // Redirect to home page after successful authentication
+    
 });
 
 app.get(/.*/, (req, res) => {
-    console.log(`Received request for: ${req.cookies}`);
-    let authenticated = req.cookies && req.cookies.authkey === authKey; // MAKE SECURE LATER
+    const user = getUser(req);
     let requestedPath = req.path;
 
-    if (requestedPath == '/') {
-        requestedPath = '/index.html'; // Default to index.html
-    }
-
     // -----  DO NOT EDIT FILE PATH AFTER AUTHENTICATION CHECK -----
-    if (!authenticated) {
+    if (user.authenticationLevel > 0) {
+        if (requestedPath == '/') {
+            requestedPath = '/index.html'; // Default to index.html
+        }else if (requestedPath == '/api/visits') {
+            const visits = db.prepare('SELECT placeId, lat, lng, response FROM clients').all();
+            res.json(visits);
+            return;
+        }
+    }else{
         requestedPath = '/login.html'; // Serve login if not authenticated
     }
-
-    if (requestedPath == '/api/visits') {
-        const visits = db.prepare('SELECT placeId, lat, lng, response FROM clients').all();
-        res.json(visits);
-        return;
-    }
-
     const filePath = path.join(publicFolder, requestedPath);
     // -----  DO NOT EDIT FILE PATH AFTER AUTHENTICATION CHECK -----
     
@@ -98,8 +142,8 @@ app.get(/.*/, (req, res) => {
         }
 
         let responseText = data.toString();
-        if (authenticated && filePath.endsWith('.html')) { // Inject API key on authenticated HTML pages
-            responseText = `<script>window.GOOGLE_MAPS_API_KEY = "${GOOGLE_MAPS_API_KEY}";</script>` + responseText; 
+        if (user.authenticationLevel > 0 && filePath.endsWith('.html')) { // Inject API key on authenticated HTML pages
+            responseText = `<script>window.GOOGLE_MAPS_API_KEY = "${GOOGLE_MAPS_API_KEY}";</script>` + responseText;
         }
 
         res.send(responseText);
