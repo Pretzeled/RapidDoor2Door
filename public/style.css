@@ -1,0 +1,130 @@
+#close-info-panel {
+    cursor: pointer;
+    font-weight: bold;
+    text-align: center;
+    position: absolute;
+    top: 0;
+    right: 0;
+    align-self: flex-end;
+    border-left: 1px solid #ccc;
+    border-bottom: 1px solid #ccc;
+    background-color: white;
+    padding: 5px;
+    border-radius: 0 5px 0 5px;
+    width: 30px;
+    z-index: 10;
+}
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+    box-sizing: border-box;
+    overflow: hidden;
+    overscroll-behavior: none;
+    height: calc(var(--vh, 1vh) * 100);
+    width: 100vw;
+}
+#map {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: calc(var(--vh, 1vh) * 100);
+}
+/* Hide Google Maps controls */
+.gmnoprint {
+    display: none !important;
+}
+
+/* Move fullscreen control to the top left corner */
+.gm-fullscreen-control {
+    display: none !important;
+}
+
+#custom-fullscreen-btn {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 1100;
+    background: #4285F4;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 16px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+    transition: background 0.2s;
+}
+#custom-fullscreen-btn:hover {
+    background: #3367d6;
+}
+
+#home-info-panel {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 1000;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+    padding: 24px;
+    max-width: 400px;
+    margin: 32px auto;
+    border: 1px solid #ccc;
+    display: none; /* Initially hidden */
+    max-height: 80vh;
+    box-sizing: border-box;
+}
+
+#home-info-panel .content {
+    overflow-y: auto;
+    max-height: calc(80vh - 48px);
+}
+
+#home-info-form {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+#home-info-form label {
+    font-weight: 500;
+    margin-bottom: 2px;
+}
+
+#home-info-form input, #home-info-form select {
+    padding: 8px 10px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    font-size: 1rem;
+}
+
+#home-info-form button,
+#home-info-form input[type="submit"],
+#home-info-form input[type="save"] {
+    background: #4285F4;
+    color: #fff;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.2s;
+    border-radius: 4px;
+    padding: 8px 16px;
+    font-size: 1rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+}
+
+#home-info-form button:hover,
+#home-info-form input[type="submit"]:hover,
+#home-info-form input[type="save"]:hover {
+    background: #3367d6;
+}
+
+#home-info-form input[type="submit"]:disabled,
+#home-info-form input[type="save"]:disabled {
+    background: #6f6f6f;
+}
+

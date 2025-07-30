@@ -2,26 +2,58 @@
 <html lang="en">
 <head> 
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Rapid Door 2 Door</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f4;
-            box-sizing: border-box;
-        }
-        #map {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: calc(var(--vh, 1vh) * 100);
-        }
-    </style>
+        <link rel="stylesheet" href="style.css">
+        <!-- All styles moved to style.css -->
 </head>
 <body>
+    <div id="home-info-panel">
+        <div id="close-info-panel">X</div>
+        <div class="content">
+            <img id="street-view-image" src="" alt="Street View Image" style="width: 100%; height: auto; border-radius: 5px;">
+            <h2 id="home-address"></h2>
+            <form id="home-info-form" style="display: flex; flex-direction: column; gap: 10px;">
+                <label for="home-type">Response:</label>
+                <select id="home-type" name="response">
+                    <option value="unvisited">Haven't Visited</option>
+                    <option value="no_soliciting">Didn't knock: No Soliciting</option>
+                    <option value="no_answer">Knocked: No Answer</option>
+                    <option value="not_interested">Answered: Not Interested</option>
+                    <option value="gave_contact">Answered: Gave Contact</option>
+                    <option value="gave_quote_not_interested">Gave Quote: Not Interested</option>
+                    <option value="gave_quote_gave_contact">Gave Quote: Gave Contact</option>
+                    <option value="booked">Booked Apt.</option>
+                </select>
+
+                <label for="first-name">First Name:</label>
+                <input type="text" id="first-name" name="firstName" placeholder="John">
+
+                <label for="last-name">Last Name:</label>
+                <input type="text" id="last-name" name="lastName" placeholder="Doe">
+
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" placeholder="john.doe@example.com">
+
+                <label for="phone-number">Phone Number:</label>
+                <input type="tel" id="phone-number" name="phoneNumber" placeholder="(123) 456-7890" pattern="\(\d{3}\) \d{3}-\d{4}" maxlength="14" inputmode="tel">
+
+                <label for="car-make-and-model">Car Make and Model:</label>
+                <input type="text" id="car-make-and-model" name="carMakeAndModel" placeholder="Car Make and Model">
+
+                <label for="notes">Notes:</label>
+                <input type="text" id="notes" name="notes" placeholder="Notes">
+
+                <div style="display: flex; gap: 10px;">
+                    <button disabled="true" type="button" id="save-btn">Save</button>
+                    <button type="button" id="book-btn">Book</button>
+                </div>
+
+                <input type="hidden" id="address-input" name="address" value="">
+                <input type="hidden" id="place-id-input" name="placeId" value="">
+            </form>
+        </div>
+    </div>    
     <div id="map"></div>
     <script src="index.js"></script>
 </body>
