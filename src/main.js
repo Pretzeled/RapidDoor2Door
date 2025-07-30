@@ -7,7 +7,7 @@ const upload = multer();
 
 const Database = require('better-sqlite3');
 const db = new Database('clients.db');
-db.prepare('CREATE TABLE IF NOT EXISTS clients (placeId TEXT PRIMARY KEY, response TEXT, fname TEXT, lname TEXT, email TEXT, phone TEXT, carMakeAndModel TEXT, notes TEXT, address TEXT)').run();
+db.prepare('CREATE TABLE IF NOT EXISTS clients (placeId TEXT PRIMARY KEY, response TEXT, fname TEXT, lname TEXT, email TEXT, phone TEXT, carMakeAndModel TEXT, notes TEXT, address TEXT, lat REAL, lng REAL)').run();
 
 dotenv.config({ path: 'config/config.cfg' });
 dotenv.config({ path: 'config/keys.cfg' });
@@ -28,8 +28,8 @@ function respond404(req, res) {
 
 app.post('/api/save', upload.none(), (req, res) => {
     console.log('Received save request:', req.body);
-    db.prepare('INSERT OR REPLACE INTO clients (placeId, response, fname, lname, email, phone, carMakeAndModel, notes, address) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)')
-    .run(req.body.placeId, req.body.response, req.body.firstName, req.body.lastName, req.body.email, req.body.phoneNumber, req.body.carMakeAndModel, req.body.notes, req.body.address);
+    db.prepare('INSERT OR REPLACE INTO clients (placeId, response, fname, lname, email, phone, carMakeAndModel, notes, address, lat, lng) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)')
+    .run(req.body.placeId, req.body.response, req.body.firstName, req.body.lastName, req.body.email, req.body.phoneNumber, req.body.carMakeAndModel, req.body.notes, req.body.address, req.body.lat, req.body.lng);
     res.sendStatus(200);
 });
 
@@ -38,7 +38,7 @@ app.get(/.*/, (req, res) => {
 
     console.log(`Received request for: ${req.path}`);
     if (req.path == '/api/visits') {
-        const visits = db.prepare('SELECT placeId, response FROM clients').all();
+        const visits = db.prepare('SELECT placeId, lat, lng, response FROM clients').all();
         res.json(visits);
         return;
     }

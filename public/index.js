@@ -134,6 +134,8 @@ function initMap() {
     const homeAddresText = document.getElementById("home-address");
     const homeAddresInput = document.getElementById("address-input");
     const placeIdInput = document.getElementById("place-id-input");
+    const latInput = document.getElementById("lat-input");
+    const lngInput = document.getElementById("lng-input");
     const form = document.getElementById("home-info-form");
     map.addListener('click', function(event) {
         const latLng = event.latLng;
@@ -162,6 +164,8 @@ function initMap() {
                             form.reset();
                             homeAddresInput.value = results[0].formatted_address; // Set address input value
                             placeIdInput.value = results[0].place_id; // Set place ID input value
+                            latInput.value = results[0].geometry.location.lat(); // Set latitude input value
+                            lngInput.value = results[0].geometry.location.lng(); // Set longitude input value
                             saved = true; // Mark as saved
                         } else {
                             viewImage.src = ''; // Clear image if no street view available
